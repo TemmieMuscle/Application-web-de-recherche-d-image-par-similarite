@@ -2,10 +2,9 @@ package pdl.backend.repository;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.io.File;
 
 @Repository
 public class ImageRepository implements InitializingBean{
@@ -15,6 +14,40 @@ public class ImageRepository implements InitializingBean{
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        this.rebuild();
+    }
+
+    public void add(String name) {
+        String sql = "INSERT INTO images (name) VALUES (?)";
+        jdbcTemplate.update(sql, name);
+    }
+
+    public String get(long id) {
+        try {
+            String sql = "SELECT name FROM images WHERE id = ?";
+            return jdbcTemplate.queryForObject(sql, String.class, id+1);
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("No image found with id " + id);
+            return null;
+        }
+    }
+
+    public void delete(long id) {
+        String sql = "DELETE FROM images WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
+    public int size() {
+        try {
+            String sql = "SELECT COUNT(*) FROM images";
+            return Integer.parseInt(jdbcTemplate.queryForObject(sql, String.class));
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("cant get table size");
+            return -1;
+        }
+    }
+
+    public void rebuild() {
         // Drop table
         jdbcTemplate.execute("DROP TABLE IF EXISTS images");
 
@@ -25,26 +58,5 @@ public class ImageRepository implements InitializingBean{
                         "name character varying(255)" +
                         ")"
         );
-
-        //parcours du fichier ./images et ajout dans la BDD
-        File dir = new File("./images");
-        if(!dir.exists()){
-            throw new Exception("Directory ./images does not exist");
-        }
-
-        File[] files = dir.listFiles((dir1, name) -> (name.endsWith(".jpg") || name.endsWith(".png")));
-        if(files == null){
-            throw new Exception("No images found in ./images");
-        }
-
-        for(File file : files){
-            add(file.getName());
-            System.out.println(file.getName());
-        }
-    }
-
-    public void add(String name) {
-        String sql = "INSERT INTO images (name) VALUES (?)";
-        jdbcTemplate.update(sql, name);
     }
 }

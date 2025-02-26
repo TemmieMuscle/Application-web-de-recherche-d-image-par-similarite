@@ -12,6 +12,12 @@ public class Image {
     this.data = data;
   }
 
+  public Image(final long id, final String name, final byte[] data) {
+    this.id = id;
+    this.name = name;
+    this.data = data;
+  }
+
   public long getId() {
     return id;
   }

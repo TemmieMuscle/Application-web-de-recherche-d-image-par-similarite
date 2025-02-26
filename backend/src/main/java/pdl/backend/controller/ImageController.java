@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pdl.backend.repository.ImageRepository;
 import pdl.backend.service.Image;
-import pdl.backend.repository.ImageDao;
+import pdl.backend.service.ImageDao;
 
 @RestController
 public class ImageController {
@@ -56,8 +56,12 @@ public class ImageController {
     Optional<Image> image = imageDao.retrieve(id);
 
     if (image.isPresent()) {
-      imageDao.delete(image.get());
-      return new ResponseEntity<>("Image id=" + id + " deleted.", HttpStatus.OK);
+        try {
+            imageDao.delete(image.get());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return new ResponseEntity<>("Image id=" + id + " deleted.", HttpStatus.OK);
     }
     return new ResponseEntity<>("Image id=" + id + " not found.", HttpStatus.NOT_FOUND);
   }
