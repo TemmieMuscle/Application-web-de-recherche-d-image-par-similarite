@@ -20,8 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pdl.backend.repository.ImageRepository;
 import pdl.backend.service.Image;
-import pdl.backend.service.ImageDao;
+import pdl.backend.repository.ImageDao;
 
 @RestController
 public class ImageController {
@@ -30,10 +31,12 @@ public class ImageController {
   private ObjectMapper mapper;
 
   private final ImageDao imageDao;
+  private final ImageRepository imageRepository;
 
   @Autowired
-  public ImageController(ImageDao imageDao) {
+  public ImageController(ImageDao imageDao, ImageRepository imageRepository) {
     this.imageDao = imageDao;
+    this.imageRepository = imageRepository;
   }
 
   @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
