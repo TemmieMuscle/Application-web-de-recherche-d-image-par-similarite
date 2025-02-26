@@ -7,15 +7,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ImageRepository implements InitializingBean{
+public class ImageRepository{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.rebuild();
-    }
 
     public void add(String name) {
         String sql = "INSERT INTO images (name) VALUES (?)";
