@@ -25,6 +25,12 @@ const routes: Array<RouteRecordRaw> = [
     name: "upload",
     component: () => import("./components/Upload.vue"),
     props: true
+  },
+  {
+    path: "/delete",
+    name: "delete",
+    component: () => import("./components/Delete.vue"),
+    props: true
   }
 ];
 

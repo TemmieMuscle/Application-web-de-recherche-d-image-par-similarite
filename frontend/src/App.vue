@@ -14,6 +14,9 @@
         <li>
           <router-link to="/upload">Upload</router-link>
         </li>
+        <li>
+          <router-link to="/delete">Delete</router-link>
+        </li>
       </ul>
     </nav>
 
