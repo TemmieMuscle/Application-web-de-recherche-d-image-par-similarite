@@ -1,7 +1,7 @@
 package pdl.backend.repository;
 
 import java.util.Arrays;
-
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -21,7 +21,7 @@ public class ImageRepository{
         jdbcTemplate.update(sql, name, histogramString);
     }
 
-    public String get(long id) {
+    public String getName(long id) {
         try {
             String sql = "SELECT name FROM images WHERE id = ?";
             return jdbcTemplate.queryForObject(sql, String.class, id+1);
@@ -31,6 +31,16 @@ public class ImageRepository{
         }
     }
 
+    public String getHistogram(long id) {
+        try {
+            String sql = "SELECT histogram FROM images WHERE id = ?";
+            return jdbcTemplate.queryForObject(sql, String.class, id + 1);
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("No histogram found for image with id " + id);
+            return null;
+        }
+    }
+    
     public void delete(long id) {
         String sql = "DELETE FROM images WHERE id = ?";
         jdbcTemplate.update(sql, id);
@@ -59,4 +69,11 @@ public class ImageRepository{
                         ")"
         );
     }
+
+    public List<String> findSimilarImages(int[] histogram, int N) {
+        String sql = "SELECT name FROM images ORDER BY histogram <=> ? LIMIT ?";
+        String query = Arrays.toString(histogram);
+        return jdbcTemplate.queryForList(sql, String.class, query, N);
+    }
+
 }

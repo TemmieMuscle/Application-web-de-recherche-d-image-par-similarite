@@ -32,7 +32,7 @@ public class ImageDao implements Dao<Image> {
 
   @Override
   public Optional<Image> retrieve(final long id) {
-    String name = imageRepository.get(id);
+    String name = imageRepository.getName(id);
     if (name == null) {
       return Optional.empty();
     }

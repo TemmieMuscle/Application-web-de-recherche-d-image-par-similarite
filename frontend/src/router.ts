@@ -27,6 +27,12 @@ const routes: Array<RouteRecordRaw> = [
     props: true
   },
   {
+    path: "/similar",
+    name: "similar",
+    component: () => import("./components/Similar.vue"),
+    props: true
+  },
+  {
     path: "/delete",
     name: "delete",
     component: () => import("./components/Delete.vue"),

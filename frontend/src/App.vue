@@ -17,6 +17,9 @@
         <li>
           <router-link to="/delete">Delete</router-link>
         </li>
+        <li>
+          <router-link to="/similar">Similar Images</router-link>
+        </li>
       </ul>
     </nav>
 
