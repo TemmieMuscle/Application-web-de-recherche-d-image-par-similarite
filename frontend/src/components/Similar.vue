@@ -49,7 +49,7 @@ fetchImageList();
       <Image :id="selectedId" />
     </div>
     <div v-if="similarImages.length > 0">
-      <h4>Simliar Images</h4>
+      <h4>Similar Images</h4>
       <div>
         <Image v-for="image in similarImages" :key="image.id" :id="image.id" />
       </div>
