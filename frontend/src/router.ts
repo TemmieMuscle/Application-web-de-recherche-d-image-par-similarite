@@ -37,6 +37,12 @@ const routes: Array<RouteRecordRaw> = [
     name: "delete",
     component: () => import("./components/Delete.vue"),
     props: true
+  },
+  {
+    path: "/ImageQuest",
+    name: "ImageQuest",
+    component: () => import("./components/ImageQuest.vue"),
+    props: true
   }
 ];
 
