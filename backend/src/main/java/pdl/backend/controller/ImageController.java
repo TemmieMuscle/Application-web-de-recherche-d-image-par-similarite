@@ -39,6 +39,18 @@ public class ImageController {
     this.imageRepository = imageRepository;
   }
 
+  //besoin pour le jeu
+  @RequestMapping(value = "/images/{id}.png", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+  public ResponseEntity<?> getImagePng(@PathVariable("id") long id) {
+
+    Optional<Image> image = imageDao.retrieve(id);
+
+    if (image.isPresent()) {
+      return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(image.get().getData());
+    }
+    return new ResponseEntity<>("Image id=" + id + " not found.", HttpStatus.NOT_FOUND);
+  }
+
   @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<?> getImage(@PathVariable("id") long id) {
 
@@ -49,6 +61,8 @@ public class ImageController {
     }
     return new ResponseEntity<>("Image id=" + id + " not found.", HttpStatus.NOT_FOUND);
   }
+
+
 
   @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
   public ResponseEntity<?> deleteImage(@PathVariable("id") long id) {
