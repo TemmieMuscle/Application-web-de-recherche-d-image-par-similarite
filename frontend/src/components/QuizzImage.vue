@@ -1,58 +1,37 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, onMounted } from 'vue';
 import { api } from '../http-api';
 import type { ImageType } from '../image';
 import Image from './Image.vue';
 
-const selectedId = ref<number | null>(null);
 const imageList = ref<ImageType[]>([]);
-const similarImages = ref<ImageType[]>([]);
+const randomImageId = ref<number | null>(null);
 
 const fetchImageList = async () => {
   try {
     imageList.value = await api.getImageList();
+    if (imageList.value.length > 0) {
+      const randomIndex = Math.floor(Math.random() * (imageList.value.length));
+      randomImageId.value = imageList.value[randomIndex].id;
+      console.log(imageList.value[randomIndex].id);
+
+    }
   } catch (e) {
     console.error('Error fetching image list:', e);
   }
 };
 
-const fetchSimilarImages = async (id: number) => {
-  try {
-    similarImages.value = await api.getSimilarImages(id);
-  } catch (e) {
-    console.error('Error fetching similar images:', e);
-    similarImages.value = [];
-  }
-};
-
-watch(selectedId, async (id) => {
-  if (id !== null) {
-    await fetchSimilarImages(id);
-  } else {
-    similarImages.value = [];
-  }
-});
-
-fetchImageList();
+onMounted(fetchImageList);
 </script>
 
 <template>
   <div>
-    <h3>Choose an image</h3>
-    <div>
-      <select v-model="selectedId">
-        <option v-for="image in imageList" :value="image.id" :key="image.id">{{ image.name }}</option>
-      </select>
+    <h3>Random Image</h3>
+    <div v-if="randomImageId !== null">
+      <Image :id="randomImageId" />
     </div>
-    <div v-if="selectedId !== null">
-      <h4>Selected Image</h4>
-      <Image :id="selectedId" />
-    </div>
-    <div v-if="similarImages.length > 0">
-      <h4>Similar Images</h4>
-      <div>
-        <Image v-for="image in similarImages" :key="image.id" :id="image.id" />
-      </div>
+    <div v-else>
+      <p>Loading image...</p>
     </div>
   </div>
 </template>
