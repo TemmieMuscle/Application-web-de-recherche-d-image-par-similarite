@@ -1,25 +1,42 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { api } from '../http-api';
 import type { ImageType } from '../image';
 import Image from './Image.vue';
 
 const imageList = ref<ImageType[]>([]);
 const randomImageId = ref<number | null>(null);
+const similarImages = ref<ImageType[]>([]);
 
 const fetchImageList = async () => {
   try {
     imageList.value = await api.getImageList();
     if (imageList.value.length > 0) {
-      const randomIndex = Math.floor(Math.random() * (imageList.value.length));
+      const randomIndex = Math.floor(Math.random() * imageList.value.length);
       randomImageId.value = imageList.value[randomIndex].id;
-      console.log(imageList.value[randomIndex].id);
-
     }
   } catch (e) {
     console.error('Error fetching image list:', e);
   }
 };
+
+const fetchSimilarImages = async (id: number) => {
+  try {
+    similarImages.value = await api.getSimilarImages(id);
+    similarImages.value = similarImages.value.slice(0, 3);
+  } catch (e) {
+    console.error('Error fetching similar images:', e);
+    similarImages.value = [];
+  }
+};
+
+watch(randomImageId, async (id) => {
+  if (id !== null) {
+    await fetchSimilarImages(id);
+  } else {
+    similarImages.value = [];
+  }
+});
 
 onMounted(fetchImageList);
 </script>
@@ -28,10 +45,41 @@ onMounted(fetchImageList);
   <div>
     <h3>Random Image</h3>
     <div v-if="randomImageId !== null">
+      <p>Image ID: {{ randomImageId }}</p>
       <Image :id="randomImageId" />
     </div>
     <div v-else>
       <p>Loading image...</p>
     </div>
+    <div v-if="similarImages.length > 0">
+      <h4>Similar Images</h4>
+      <div class="similar-images-container">
+        <div v-for="image in similarImages" :key="image.id" class="similar-image">
+          <Image :id="image.id" />
+          <p>{{ image.id }}</p>
+          <p>{{ image.name }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style>
+
+.similar-images-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap; 
+}
+
+.similar-image {
+  text-align: center;
+}
+
+img {
+  width: 300px;
+  height: auto;
+}
+</style>
+

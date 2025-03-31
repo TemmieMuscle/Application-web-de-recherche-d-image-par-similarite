@@ -1,8 +1,35 @@
-# Default ignored files
-/shelf/
-/workspace.xml
-# Editor-based HTTP Client requests
-/httpRequests/
-# Datasource local storage ignored files
-/dataSources/
-/dataSources.local.xml
+# VSCode specific files
+.vscode/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Node.js modules
+node_modules/
+
+# Log files
+*.log
+
+# Build output
+/dist/
+/build/
+/out/
+
+# Dependency directories
+bower_components/
+
+# Coverage directory used by tools like istanbul
+/coverage/
+
+# Project-specific IDE files
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# VSCode extensions
+.vscode-test/
+
+# Optional NPM package lock file (if not wanted in the repo)
+package-lock.json
