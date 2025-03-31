@@ -71,7 +71,7 @@ public class ImageRepository{
     }
 
     public List<Long> findSimilarImages(int[] histogram, int N) {
-        String sql = "SELECT id FROM images ORDER BY histogram <-> ?::vector LIMIT ?";
+        String sql = "SELECT id FROM images ORDER BY histogram <#> ?::vector LIMIT ?";
         String histogramVector = Arrays.toString(histogram);
         return jdbcTemplate.queryForList(sql, Long.class, histogramVector, N);
     }
