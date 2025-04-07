@@ -55,7 +55,7 @@ onMounted(fetchImageList);
     <h3>Random Image</h3>
     <div v-if="randomImageId !== null">
       <p>Image ID: {{ randomImageId }}</p>
-      <Image :id="randomImageId" />
+      <img :src="`http://localhost:8080/images/${randomImageId}`"/>
     </div>
     <div v-else>
       <p>Loading image...</p>

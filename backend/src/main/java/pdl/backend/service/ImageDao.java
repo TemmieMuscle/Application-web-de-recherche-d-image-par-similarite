@@ -23,7 +23,7 @@ public class ImageDao implements Dao<Image> {
 
   private final ImageRepository imageRepository;
 
-  private final String imagesDir = "/home/yaka/Desktop/ProjetL3/l3d/images";
+  private final String imagesDir = "./images";
 
   public ImageDao(ImageRepository imageRepository) throws Exception {
     this.imageRepository = imageRepository;

@@ -2,7 +2,6 @@
 import { ref, watch } from 'vue'
 import { api } from '../http-api';
 import type { ImageType } from '../image';
-import Image from './Image.vue';
 
 const selectedId = ref<number | null>(null);
 const imageList = ref<ImageType[]>([]);
@@ -46,12 +45,17 @@ fetchImageList();
     </div>
     <div v-if="selectedId !== null">
       <h4>Selected Image</h4>
-      <Image :id="selectedId" />
+      <img :src="`http://localhost:8080/images/${selectedId}`"/>
     </div>
     <div v-if="similarImages.length > 0">
       <h4>Similar Images</h4>
       <div>
-        <Image v-for="image in similarImages" :key="image.id" :id="image.id" />
+        <img
+            v-for="image in similarImages"
+            :key="image.id"
+            :src="`http://localhost:8080/images/${image.id}`"
+            :alt="image.name"
+        />
       </div>
     </div>
   </div>
