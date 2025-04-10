@@ -158,32 +158,33 @@ public class ImageDao implements Dao<Image> {
 
   public void create_zoom(final Image img) {
     File zoomedFile = new File(imagesDir + "/zoom_" + img.getName());
-    
+
     if (zoomedFile.exists()) {
-      zoomedFile.delete();
+        return;
     }
 
     try {
-      File tempFile = new File(imagesDir + "/" + img.getName());
-      try (FileOutputStream stream = new FileOutputStream(tempFile)) {
-        stream.write(img.getData());
-      }
+        File tempFile = new File(imagesDir + "/" + img.getName());
+        try (FileOutputStream stream = new FileOutputStream(tempFile)) {
+            stream.write(img.getData());
+        }
 
-      BufferedImage bufferedImage = UtilImageIO.loadImage(tempFile.getAbsolutePath());
-      Planar<GrayU8> planarImage = ConvertBufferedImage.convertFromPlanar(bufferedImage, null, true, GrayU8.class);
-      Planar<GrayU8> blurredImage = planarImage.createSameShape();
-      ModifImages.zoomRandomArea(planarImage,blurredImage);
-      BufferedImage finalBufferedImage = ConvertBufferedImage.convertTo(blurredImage, null, true);
+        BufferedImage bufferedImage = UtilImageIO.loadImage(tempFile.getAbsolutePath());
+        Planar<GrayU8> planarImage = ConvertBufferedImage.convertFromPlanar(bufferedImage, null, true, GrayU8.class);
+        Planar<GrayU8> blurredImage = planarImage.createSameShape();
+        ModifImages.zoomRandomArea(planarImage, blurredImage);
+        BufferedImage finalBufferedImage = ConvertBufferedImage.convertTo(blurredImage, null, true);
 
-      ImageIO.write(finalBufferedImage, "png", zoomedFile);
-      byte[] blurredData = Files.readAllBytes(zoomedFile.toPath());
-      Image blurredImg = new Image(0, "zoom_" + img.getName(), blurredData);
-      create(blurredImg);
+        ImageIO.write(finalBufferedImage, "png", zoomedFile);
+        byte[] blurredData = Files.readAllBytes(zoomedFile.toPath());
+        Image blurredImg = new Image(0, "zoom_" + img.getName(), blurredData);
+        create(blurredImg);
 
     } catch (IOException e) {
-      throw new RuntimeException(e);
+        throw new RuntimeException(e);
     }
-  }
+}
+
 
 
 

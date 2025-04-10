@@ -103,7 +103,7 @@ public class ImageController {
     List<Image> images = imageDao.retrieveAll();
     ArrayNode nodes = mapper.createArrayNode();
     for (Image image : images) {
-      if (image.getName().startsWith("flou_")) {
+      if (image.getName().startsWith("flou_") || image.getName().startsWith("zoom_")) {
         continue;
       }
       ObjectNode objectNode = mapper.createObjectNode();

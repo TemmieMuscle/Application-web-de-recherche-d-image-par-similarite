@@ -72,10 +72,17 @@ public class ImageRepository{
     }
 
     public List<Map<String, Object>> findSimilarImages(int[] histogram, int N) {
-        String sql = "SELECT id, histogram <=> ?::vector AS similarity FROM images ORDER BY similarity LIMIT ?";
+        String sql = """
+            SELECT id, name, histogram <=> ?::vector AS similarity
+            FROM images
+            WHERE name NOT LIKE 'zoom_%' AND name NOT LIKE 'flou_%'
+            ORDER BY similarity
+            LIMIT ?
+            """;
         String histogramVector = Arrays.toString(histogram);
         return jdbcTemplate.queryForList(sql, histogramVector, N);
     }
+    
     
 
     public Long getId(String name) {

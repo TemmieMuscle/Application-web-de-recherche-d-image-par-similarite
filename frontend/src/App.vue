@@ -41,6 +41,9 @@
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
   color: #2c3e50;
+  background-color: #add8e6; 
+  min-height: 100vh;
+  padding: 1em;
 }
 ul {
   list-style-type: none;
