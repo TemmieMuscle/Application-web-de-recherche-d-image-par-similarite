@@ -33,7 +33,7 @@ public class ModifImages {
         }
     }
 
-    public static void meanFilter2(Planar<GrayU8> input, Planar<GrayU8> output, int size) {
+    public static void meanFilter(Planar<GrayU8> input, Planar<GrayU8> output, int size) {
       for (int band=0; band<input.getNumBands(); band++){
         for (int i=0; i<input.width; ++i){
           for (int j=0;j<input.height; ++j){
@@ -90,7 +90,7 @@ public class ModifImages {
     }
   
 
-    public static void zoomRandomArea(Planar<GrayU8> input, Planar<GrayU8> output) {
+    public static void zoomFilter(Planar<GrayU8> input, Planar<GrayU8> output) {
     int zoomWidth = input.width / 10;
     int zoomHeight = input.height / 10;
 

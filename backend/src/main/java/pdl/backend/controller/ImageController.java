@@ -40,7 +40,7 @@ public class ImageController {
     this.imageRepository = imageRepository;
   }
 
-  //besoin pour le jeu
+  // besoin pour le jeu
   @RequestMapping(value = "/images/{id}.png", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<?> getImagePng(@PathVariable("id") long id) {
 
@@ -63,20 +63,18 @@ public class ImageController {
     return new ResponseEntity<>("Image id=" + id + " not found.", HttpStatus.NOT_FOUND);
   }
 
-
-
   @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
   public ResponseEntity<?> deleteImage(@PathVariable("id") long id) {
 
     Optional<Image> image = imageDao.retrieve(id);
 
     if (image.isPresent()) {
-        try {
-            imageDao.delete(image.get());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return new ResponseEntity<>("Image id=" + id + " deleted.", HttpStatus.OK);
+      try {
+        imageDao.delete(image.get());
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      return new ResponseEntity<>("Image id=" + id + " deleted.", HttpStatus.OK);
     }
     return new ResponseEntity<>("Image id=" + id + " not found.", HttpStatus.NOT_FOUND);
   }
@@ -116,77 +114,61 @@ public class ImageController {
 
   @RequestMapping(value = "/images/{id}/similar", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
-  public ResponseEntity<?> getSimilarImages(@PathVariable("id") long id, @RequestParam(value = "n", defaultValue = "5") int n) {
+  public ResponseEntity<?> getSimilarImages(@PathVariable("id") long id,
+      @RequestParam(value = "n", defaultValue = "5") int n) {
     String histogramStr = imageRepository.getHistogram(id);
 
-    histogramStr =histogramStr.replace("[", "").replace("]", "").replaceAll("\\s+", "");
-        String[] parts= histogramStr.split(",");
+    histogramStr = histogramStr.replace("[", "").replace("]", "").replaceAll("\\s+", "");
+    String[] parts = histogramStr.split(",");
     int[] histogram = new int[parts.length];
-    for (int i = 0; i<parts.length; i++) {
+    for (int i = 0; i < parts.length; i++) {
       histogram[i] = Integer.valueOf(parts[i]);
     }
     List<Map<String, Object>> similarImages = imageRepository.findSimilarImages(histogram, n);
     ArrayNode nodes = mapper.createArrayNode();
-    
+
     for (Map<String, Object> image : similarImages) {
-        Long imageId = (Long) image.get("id"); // Récupérer l'ID de l'image
-    
-        if (imageId != null && !imageId.equals(id)) {
-            ObjectNode objectNode = mapper.createObjectNode();
-            objectNode.put("id", imageId - 1);
-            nodes.add(objectNode);
-        }
+      Long imageId = (Long) image.get("id"); // Récupérer l'ID de l'image
+
+      if (imageId != null && !imageId.equals(id)) {
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("id", imageId - 1);
+        nodes.add(objectNode);
+      }
     }
-    
+
     return new ResponseEntity<>(nodes, HttpStatus.OK);
   }
 
-  @RequestMapping(value = "/images/{id}/{type}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE) 
-  public ResponseEntity<?> getImageModif(@PathVariable long id, @PathVariable int type) {  
-      Optional<Image> image = imageDao.retrieve(id);
-  
-      if (image.isPresent()) {
-          if(type == 1) {
-            try {
-              Image original = image.get();
-              String pixelName = "pixel_" + original.getName();
-              imageDao.create_pixel(original);
-              Long pixelId = imageRepository.getId(pixelName);
-              if (pixelId != null) {
-                  Optional<Image> blurredImage = imageDao.retrieve(pixelId - 1);
-                  if (blurredImage.isPresent()) {
-                      return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(blurredImage.get().getData());
-                  }
-              }
-              return new ResponseEntity<>("Image pixele non retrouvée après création.", HttpStatus.INTERNAL_SERVER_ERROR);
-            } catch (Exception e) {
-              return new ResponseEntity<>("Erreur lors de l'application du pixel.", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-          }
-          else if(type == 2){
-            try {
-              Image original = image.get();
-              String zoomName = "zoom_" + original.getName();
-              imageDao.create_zoom(original);
-              Long zoomId = imageRepository.getId(zoomName);
-              if (zoomId != null){
-                  Optional<Image> zoomedImage = imageDao.retrieve(zoomId - 1);
-                  if (zoomedImage.isPresent()) {
-                      return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(zoomedImage.get().getData());
-                  }
-              }
-              return new ResponseEntity<>("Image zoomé non retrouvée après création.", HttpStatus.INTERNAL_SERVER_ERROR);
-  
-            } catch (Exception e) {
-                return new ResponseEntity<>("Erreur lors de l'application du zoom.", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-          }
-
+  @RequestMapping(value = "/images/{id}/{type}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+  public ResponseEntity<?> getImageModif(@PathVariable long id, @PathVariable int type) {
+    Optional<Image> imageOpt = imageDao.retrieve(id);
+    if (imageOpt.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image id=" + id + " not found.");
+    }
+    String prefix = null;
+    if (type == 1){
+      prefix = "pixel_";
+    } else{
+      prefix = "zoom_";
+    }
+    try {
+      Image original = imageOpt.get();
+      String modifName = prefix + original.getName();
+      imageDao.create_modif(original, type);
+      Long modifId = imageRepository.getId(modifName);
+      if (modifId != null) {
+        Optional<Image> modifImage = imageDao.retrieve(modifId - 1);
+        if (modifImage.isPresent()) {
+          return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(modifImage.get().getData());
+        }
       }
-      return new ResponseEntity<>("Image id=" + id + " not found.", HttpStatus.NOT_FOUND);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Image non trouvée");
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Erreur lors de la modification.");
+    }
   }
-  
-  
-  
 
 }

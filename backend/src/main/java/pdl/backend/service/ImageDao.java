@@ -41,14 +41,14 @@ public class ImageDao implements Dao<Image> {
       return Optional.empty();
     }
 
-    File file = new File(imagesDir,name);
+    File file = new File(imagesDir, name);
     byte[] data;
     try {
       data = Files.readAllBytes(file.toPath());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return Optional.of(new Image(id,name,data));
+    return Optional.of(new Image(id, name, data));
   }
 
   @Override
@@ -56,7 +56,7 @@ public class ImageDao implements Dao<Image> {
     int size = imageRepository.size();
     List<Image> images = new ArrayList<>(size);
     if (size != -1) {
-      for(int i=0;i<size;i++) {
+      for (int i = 0; i < size; i++) {
         Optional<Image> img = retrieve(i);
         if (img.isPresent()) {
           images.add(img.get());
@@ -69,62 +69,61 @@ public class ImageDao implements Dao<Image> {
   @Override
   public void create(final Image img) {
     try (FileOutputStream stream = new FileOutputStream(imagesDir + "/" + img.getName())) {
-        stream.write(img.getData());
-        BufferedImage bufferedImage = UtilImageIO.loadImage(imagesDir + "/" + img.getName());
-        Planar<GrayU8> planarImage = ConvertBufferedImage.convertFromPlanar(bufferedImage, null, true, GrayU8.class);
-        int[] histogram = new int[360];
-        ModifImages.histo(planarImage, histogram);
+      stream.write(img.getData());
+      BufferedImage bufferedImage = UtilImageIO.loadImage(imagesDir + "/" + img.getName());
+      Planar<GrayU8> planarImage = ConvertBufferedImage.convertFromPlanar(bufferedImage, null, true, GrayU8.class);
+      int[] histogram = new int[360];
+      ModifImages.histo(planarImage, histogram);
 
-        imageRepository.add(img.getName(), histogram);
+      imageRepository.add(img.getName(), histogram);
     } catch (IOException e) {
-        throw new RuntimeException(e);
+      throw new RuntimeException(e);
     }
   }
-
 
   @Override
   public void update(final Image img, final String[] params) {
     img.setName(Objects.requireNonNull(params[0], "Name cannot be null"));
-    //jsp a quoi ca sert
+    // jsp a quoi ca sert
   }
 
   @Override
   public void delete(final Image img) throws Exception {
-    File file = new File(imagesDir,img.getName());
+    File file = new File(imagesDir, img.getName());
     file.delete();
     imageRepository.delete(img.getId());
     this.maj();
   }
 
-  //met a jour la BDD avec les fichiers actuel de ./images
-  //utilisé lors du lancement du serv et lors de la supression d'un element
+  // met a jour la BDD avec les fichiers actuel de ./images
+  // utilisé lors du lancement du serv et lors de la supression d'un element
   public void maj() {
     imageRepository.rebuild();
     File dir = new File(imagesDir);
-    if(!dir.exists()){
-        try {
-            throw new Exception("Directory ./images does not exist");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    if (!dir.exists()) {
+      try {
+        throw new Exception("Directory ./images does not exist");
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
 
     File[] toDelete = dir.listFiles((d, name) -> name.startsWith("pixel_") || name.startsWith("zoom_"));
     if (toDelete != null) {
-        for (File file : toDelete) {
-            file.delete();
-        }
+      for (File file : toDelete) {
+        file.delete();
+      }
     }
 
     File[] files = dir.listFiles((dir1, name) -> (name.endsWith(".jpg") || name.endsWith(".png")));
-    if(files == null){
+    if (files == null) {
       try {
-          throw new Exception("No images found in ./images");
+        throw new Exception("No images found in ./images");
       } catch (Exception e) {
-          throw new RuntimeException(e);
+        throw new RuntimeException(e);
       }
     }
-    for(File file : files){
+    for (File file : files) {
       BufferedImage bufferedImage = UtilImageIO.loadImage(file.getAbsolutePath());
       Planar<GrayU8> planarImage = ConvertBufferedImage.convertFromPlanar(bufferedImage, null, true, GrayU8.class);
       int[] histogram = new int[360];
@@ -133,66 +132,41 @@ public class ImageDao implements Dao<Image> {
     }
   }
 
-  public void create_pixel(final Image img) {
-    File blurredFile = new File(imagesDir + "/pixel_" + img.getName());
-    
-    if (blurredFile.exists()) {
-        return;
+  public void create_modif(final Image img, int type) {
+    String prefix;
+    if (type == 1) {
+      prefix = "pixel_";
+    } else {
+      prefix = "zoom_";
+    }
+    File outputFile = new File(imagesDir + "/" + prefix + img.getName());
+    if (outputFile.exists()) {
+      return;
     }
 
     try {
-        File tempFile = new File(imagesDir + "/" + img.getName());
-        try (FileOutputStream stream = new FileOutputStream(tempFile)) {
-            stream.write(img.getData());
-        }
+      File tempFile = new File(imagesDir + "/" + img.getName());
+      try (FileOutputStream stream = new FileOutputStream(tempFile)) {
+        stream.write(img.getData());
+      }
+      BufferedImage bufferedImage = UtilImageIO.loadImage(tempFile.getAbsolutePath());
+      Planar<GrayU8> input = ConvertBufferedImage.convertFromPlanar(bufferedImage, null, true, GrayU8.class);
+      Planar<GrayU8> output = input.createSameShape();
+      if (type == 1) {
+        ModifImages.pixelFilter(input, output, 30);
+      } else {
+        ModifImages.zoomFilter(input, output);
+      }
+      BufferedImage finalImage = ConvertBufferedImage.convertTo(output, null, true);
+      ImageIO.write(finalImage, "png", outputFile);
 
-        BufferedImage bufferedImage = UtilImageIO.loadImage(tempFile.getAbsolutePath());
-        Planar<GrayU8> planarImage = ConvertBufferedImage.convertFromPlanar(bufferedImage, null, true, GrayU8.class);
-        Planar<GrayU8> blurredImage = planarImage.createSameShape();
-        ModifImages.pixelFilter(planarImage, blurredImage, 30); 
-        BufferedImage finalBufferedImage = ConvertBufferedImage.convertTo(blurredImage, null, true);
-
-        ImageIO.write(finalBufferedImage, "png", blurredFile);
-        byte[] blurredData = Files.readAllBytes(blurredFile.toPath());
-        Image blurredImg = new Image(0, "pixel_" + img.getName(), blurredData);
-        create(blurredImg);
+      byte[] outputData = Files.readAllBytes(outputFile.toPath());
+      Image modifImg = new Image(0, prefix + img.getName(), outputData);
+      create(modifImg);
 
     } catch (IOException e) {
-        throw new RuntimeException(e);
+      throw new RuntimeException("Erreur lors de la création de l'image" + e.getMessage(), e);
     }
   }
-
-
-  public void create_zoom(final Image img) {
-    File zoomedFile = new File(imagesDir + "/zoom_" + img.getName());
-
-    if (zoomedFile.exists()) {
-        return;
-    }
-
-    try {
-        File tempFile = new File(imagesDir + "/" + img.getName());
-        try (FileOutputStream stream = new FileOutputStream(tempFile)) {
-            stream.write(img.getData());
-        }
-
-        BufferedImage bufferedImage = UtilImageIO.loadImage(tempFile.getAbsolutePath());
-        Planar<GrayU8> planarImage = ConvertBufferedImage.convertFromPlanar(bufferedImage, null, true, GrayU8.class);
-        Planar<GrayU8> blurredImage = planarImage.createSameShape();
-        ModifImages.zoomRandomArea(planarImage, blurredImage);
-        BufferedImage finalBufferedImage = ConvertBufferedImage.convertTo(blurredImage, null, true);
-
-        ImageIO.write(finalBufferedImage, "png", zoomedFile);
-        byte[] blurredData = Files.readAllBytes(zoomedFile.toPath());
-        Image blurredImg = new Image(0, "zoom_" + img.getName(), blurredData);
-        create(blurredImg);
-
-    } catch (IOException e) {
-        throw new RuntimeException(e);
-    }
-}
-
-
-
 
 }
