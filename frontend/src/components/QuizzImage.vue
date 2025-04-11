@@ -86,40 +86,38 @@ onMounted(fetchImageList);
 </script>
 
 <template>
-  <div v-if ="id === 0">
+  <div v-if="id === 0">
     <p>Quel niveau va tu choisir cher joueur ?</p>
     <button><router-link to="/QuizzImage/1">Facile</router-link></button>
     <button><router-link to="/QuizzImage/2">Moyen</router-link></button>
     <button><router-link to="/QuizzImage/3">Dur</router-link></button>
   </div>
   <div v-else>
-  <div>
-    <h3>Modified Image</h3>
-    <div v-if="modifImageId !== null">
-      <p>Image ID: {{ modifImageId }}</p>
-      <figure :id="'gallery-' + modifImageId"></figure>
+    <div>
+      <h3>Modified Image</h3>
+      <div v-if="modifImageId !== null">
+        <p>Image ID: {{ modifImageId }}</p>
+        <figure :id="'gallery-' + modifImageId"></figure>
+      </div>
+      <div v-else>
+        <p>Loading image...</p>
+      </div>
     </div>
-    <div v-else>
-      <p>Loading image...</p>
-    </div>
-  </div>
 
-  <div>
-    <div v-if="shuffledImages.length > 0">
-      <h4>Images</h4>
-      <div class="similar-images-container">
-        <div v-for="image in shuffledImages" :key="image.id" class="similar-image">
-          <router-link
-            :to="{ name: 'Result', params: { id: image.id === randomImageId ? 0 : 1 } }"
-          >
-            <Image :id="image.id" />
-          </router-link>
-          <p>{{ image.name }}</p>
+    <div>
+      <div v-if="shuffledImages.length > 0">
+        <h4>Images</h4>
+        <div class="similar-images-container">
+          <div v-for="image in shuffledImages" :key="image.id" class="similar-image">
+            <router-link :to="{ name: 'Result', params: { id: image.id === randomImageId ? 0 : 1 } }">
+              <Image :id="image.id" />
+            </router-link>
+            <p>{{ image.name }}</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 

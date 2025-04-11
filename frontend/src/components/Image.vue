@@ -8,7 +8,7 @@ api.getImage(props.id)
     const reader = new window.FileReader();
     reader.readAsDataURL(data);
     reader.onload = () => {
-      const galleryElt = document.getElementById("gallery-"+props.id);
+      const galleryElt = document.getElementById("gallery-" + props.id);
       if (galleryElt !== null) {
         const imgElt = document.createElement("img");
         galleryElt.appendChild(imgElt);
@@ -24,7 +24,7 @@ api.getImage(props.id)
 </script>
 
 <template>
-  <figure :id="'gallery-'+id"></figure>  
+  <figure :id="'gallery-' + id"></figure>
 </template>
 
 <style></style>

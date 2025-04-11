@@ -45,17 +45,13 @@ fetchImageList();
     </div>
     <div v-if="selectedId !== null">
       <h4>Selected Image</h4>
-      <img :src="`http://localhost:8080/images/${selectedId}`"/>
+      <img :src="`http://localhost:8080/images/${selectedId}`" />
     </div>
     <div v-if="similarImages.length > 0">
       <h4>Similar Images</h4>
       <div>
-        <img
-            v-for="image in similarImages"
-            :key="image.id"
-            :src="`http://localhost:8080/images/${image.id}`"
-            :alt="image.name"
-        />
+        <img v-for="image in similarImages" :key="image.id" :src="`http://localhost:8080/images/${image.id}`"
+          :alt="image.name" />
       </div>
     </div>
   </div>

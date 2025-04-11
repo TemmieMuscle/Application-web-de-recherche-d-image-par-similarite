@@ -19,7 +19,7 @@ function submitFile() {
       console.log(e.message);
     });
   }
-  router.push({ name: 'gallery'})
+  router.push({ name: 'gallery' })
 }
 
 function handleFileUpload(event: Event) {
@@ -39,5 +39,4 @@ function handleFileUpload(event: Event) {
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

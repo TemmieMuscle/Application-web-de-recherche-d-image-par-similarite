@@ -9,9 +9,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-
 @Repository
-public class ImageRepository{
+public class ImageRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -25,7 +24,7 @@ public class ImageRepository{
     public String getName(long id) {
         try {
             String sql = "SELECT name FROM images WHERE id = ?";
-            return jdbcTemplate.queryForObject(sql, String.class, id+1);
+            return jdbcTemplate.queryForObject(sql, String.class, id + 1);
         } catch (EmptyResultDataAccessException e) {
             System.out.println("No image found with id " + id);
             return null;
@@ -41,7 +40,7 @@ public class ImageRepository{
             return null;
         }
     }
-    
+
     public void delete(long id) {
         String sql = "DELETE FROM images WHERE id = ?";
         jdbcTemplate.update(sql, id);
@@ -66,24 +65,21 @@ public class ImageRepository{
                 "CREATE TABLE IF NOT EXISTS images (" +
                         "id bigserial PRIMARY KEY, " +
                         "name character varying(255)," +
-                        "histogram VECTOR(360)"+
-                        ")"
-        );
+                        "histogram VECTOR(360)" +
+                        ")");
     }
 
     public List<Map<String, Object>> findSimilarImages(int[] histogram, int N) {
         String sql = """
-            SELECT id, name, histogram <=> ?::vector AS similarity
-            FROM images
-            WHERE name NOT LIKE 'zoom_%' AND name NOT LIKE 'pixel_%' AND name NOT LIKE 'color_%'
-            ORDER BY similarity
-            LIMIT ?
-            """;
+                SELECT id, name, histogram <=> ?::vector AS similarity
+                FROM images
+                WHERE name NOT LIKE 'zoom_%' AND name NOT LIKE 'pixel_%' AND name NOT LIKE 'color_%'
+                ORDER BY similarity
+                LIMIT ?
+                """;
         String histogramVector = Arrays.toString(histogram);
         return jdbcTemplate.queryForList(sql, histogramVector, N);
     }
-    
-    
 
     public Long getId(String name) {
         try {
@@ -94,9 +90,5 @@ public class ImageRepository{
             return null;
         }
     }
-    
 
 }
-
-
-

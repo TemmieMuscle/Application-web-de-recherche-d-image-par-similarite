@@ -1,7 +1,6 @@
 package pdl.backend.service;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import javax.imageio.ImageIO;
 
 import org.springframework.stereotype.Service;
 
-import boofcv.alg.filter.blur.GBlurImageOps;
 import boofcv.io.image.ConvertBufferedImage;
 import boofcv.io.image.UtilImageIO;
 import boofcv.struct.image.GrayU8;
@@ -108,7 +106,8 @@ public class ImageDao implements Dao<Image> {
       }
     }
 
-    File[] toDelete = dir.listFiles((d, name) -> name.startsWith("pixel_") || name.startsWith("zoom_") || name.startsWith("color_"));
+    File[] toDelete = dir
+        .listFiles((d, name) -> name.startsWith("pixel_") || name.startsWith("zoom_") || name.startsWith("color_"));
     if (toDelete != null) {
       for (File file : toDelete) {
         file.delete();
@@ -157,9 +156,9 @@ public class ImageDao implements Dao<Image> {
       Planar<GrayU8> output = input.createSameShape();
       if (type == 1) {
         ModifImages.pixelFilter(input, output, 30);
-      } else if (type == 2)  {
+      } else if (type == 2) {
         ModifImages.zoomFilter(input, output);
-      } else{
+      } else {
         ModifImages.colorFilter(input, output);
         ModifImages.zoomFilter(output, output);
         ModifImages.pixelFilter(output, output, 30);

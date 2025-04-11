@@ -101,7 +101,8 @@ public class ImageController {
     List<Image> images = imageDao.retrieveAll();
     ArrayNode nodes = mapper.createArrayNode();
     for (Image image : images) {
-      if (image.getName().startsWith("pixel_") || image.getName().startsWith("zoom_") || image.getName().startsWith("color_")) {
+      if (image.getName().startsWith("pixel_") || image.getName().startsWith("zoom_")
+          || image.getName().startsWith("color_")) {
         continue;
       }
       ObjectNode objectNode = mapper.createObjectNode();

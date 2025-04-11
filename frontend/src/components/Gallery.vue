@@ -24,15 +24,14 @@ api.getImageList()
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
 
 <style>
 .images-gallery {
   display: flex;
   justify-content: center;
   gap: 10px;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
 img {

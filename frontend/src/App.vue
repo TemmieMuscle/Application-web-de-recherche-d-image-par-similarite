@@ -41,10 +41,11 @@
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
   color: #2c3e50;
-  background-color: #add8e6; 
+  background-color: #add8e6;
   min-height: 100vh;
   padding: 1em;
 }
+
 ul {
   list-style-type: none;
   margin: 0;
@@ -52,9 +53,11 @@ ul {
   overflow: hidden;
   background-color: #333;
 }
+
 li {
   float: left;
 }
+
 li a {
   display: block;
   color: white;
@@ -62,6 +65,7 @@ li a {
   padding: 14px 16px;
   text-decoration: none;
 }
+
 .error {
   color: red;
   font-weight: bold;
